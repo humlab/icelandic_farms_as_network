@@ -1,0 +1,22 @@
+{
+  "name": "icelandic_farms_as_network",
+  "version": "1.0.0",
+  "description": "Icelandic farms as network",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/humlab/icelandic_farms_as_network.git"
+  },
+  "author": "Humlab",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/humlab/icelandic_farms_as_network/issues"
+  },
+  "homepage": "https://github.com/humlab/icelandic_farms_as_network#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  }
+}
