@@ -17,7 +17,7 @@ body {
 }
 
 
-.section-left {
+.sectionLeft {
 	position:relative;
 	background-color: #faa;
 	margin: 0px;
@@ -26,7 +26,8 @@ body {
 	max-width: 90vw;
 	min-width: 10vw;
 }
-.section-right {
+
+.sectionRight {
 	position:relative;
 	background-color: #aaf;
 	margin: 0px;
@@ -39,7 +40,7 @@ body {
 	padding: 0px;
 }
 
-.section-toggle-button {
+.sectionToggleButton {
 	display:none;
 	position:fixed;
 	background-color: #2a2;
@@ -56,12 +57,12 @@ body {
 	cursor: pointer;
 }
 
-.full-section {
+.fullSection {
 	position:fixed;
 	width: 100vw;
 	max-width: 100vw;
 }
 
-.hidden-section {
+.hiddenSection {
 	display:none;
 }
