@@ -9,38 +9,59 @@ class Map {
 
 	createMapInContainer(containerDomId) {
 
+		var format = 'image/png';
+		var bounds = [134491.28507963746, 256709.59349107544, 872885.1398414932, 747362.6529178418];
+
+
+		var mousePositionControl = new ol.control.MousePosition({
+			className: 'custom-mouse-position',
+			target: document.getElementById('location'),
+			coordinateFormat: ol.coordinate.createStringXY(5),
+			undefinedHTML: '&nbsp;'
+		});
+
+		var projection = new ol.proj.Projection({
+			code: 'EPSG:3057',
+			units: 'm',
+			axisOrientation: 'neu',
+			global: false,
+			extent: bounds
+		});
+
 		var view = new ol.View({
-		    center: ol.proj.transform([12.4852, 41.8922], 'EPSG:4326', 'EPSG:3857'),
-		    zoom: 5,
-		    minZoom: 3,
-			maxZoom: 12
+			projection: projection,
+		    minZoom: 1, 
+			maxZoom: 5
 		});
 
 		//Tile layers
+		var icelandSource = new ol.source.TileWMS({
+			url: 'http://archviz.humlab.umu.se:80/geoserver/Maps/wms',
+			params: {
+				'FORMAT': format,
+				'VERSION': '1.1.1',
+				tiled: true,
+				LAYERS: 'Maps:1843_fornfraedafelagid',
+				STYLES: ''
+			}
+		});
+
 		var layers = [
-		new ol.layer.Tile({
-				source: new ol.source.XYZ({
-					logo: "http://dare.ht.lu.se/pics/logo-lu-en.png",
-					url: "http://pelagios.dme.ait.ac.at/tilesets/imperium/{z}/{x}/{y}.png",
-					attributions: [
-				    new ol.Attribution({
-				      html: 'Map graciously provided by ' +
-				          '<a href="http://dare.ht.lu.se/">Digital Atlas of the Roman Empire</a> under a <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA</a> license.'
-				    })
-				  ]
-					})
-			}),
 			new ol.layer.Tile({
-		      source: new ol.source.OSM()
-		    })
+				source: icelandSource
+			})
 		];
 
-		//Create map with tile layers and view
 		this.map = new ol.Map({
-			layers: layers,
-			target: containerDomId,
-			view: view
+			controls: ol.control.defaults({
+				attribution: false
+			}).extend([mousePositionControl]),
+				layers: layers,
+				target: 'frontPageMap',
+				view: view
 		});
+
+		this.map.getView().fit(bounds, this.map.getSize());
 
 		return this.map;
 	}

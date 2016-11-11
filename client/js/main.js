@@ -12,6 +12,6 @@ $(document).ready(function() {
 
 	//jQuery-UI magic
 	$("#tabs").tabs({
-	  active: 1
+	  active: 0
 	});
 });
