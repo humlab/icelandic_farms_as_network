@@ -1,0 +1,11 @@
+.pyc
+*.swp
+*.swo
+test/__pycache__/
+server/src/__pycache__/
+build/
+.venv
+dist/
+README
+MANIFEST
+tornadorpc.egg-info
