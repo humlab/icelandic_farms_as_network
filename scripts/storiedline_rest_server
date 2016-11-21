@@ -1,0 +1,34 @@
+#!/bin/bash
+# /etc/init.d/storiedline_rest_server
+
+NAME="storiedline_rest_server"
+PROGRAM_PATH=/var/www/storiedlines/icelandic_farms_as_network/scripts
+PROGRAM_NAME=storiedline_rest_server.sh
+
+case "$1" in
+  start)
+    printf "%s\n" "Starting $NAME"
+    pkill -9 -f storiedline_rest_server.bash
+    pkill -9 -f storiedline_rest_server.py
+    cd $PROGRAM_PATH
+    chmod +x $PROGRAM_PATH/$PROGRAM_NAME
+    PID=`nohup $PROGRAM_PATH/$PROGRAM_NAME >/dev/null 2>&1 & echo $!`
+    printf "%s\n" "$NAME is now started PID=$PID"
+    ;;
+  stop)
+    printf "%s\n" "Stopping $NAME"
+    pkill -9 -f storiedline_rest_server.bash
+    pkill -9 -f storiedline_rest_server.py
+    printf "%s\n" "$NAME is now dead"
+    ;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+  *)
+    echo "Usage: /etc/init.d/$0 {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
