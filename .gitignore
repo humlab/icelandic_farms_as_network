@@ -1,8 +1,11 @@
 .pyc
 *.swp
 *.swo
+__pycache__/
+lib/
 test/__pycache__/
 server/src/__pycache__/
+server/src/config.py
 build/
 .venv
 dist/

@@ -1,9 +1,0 @@
-.pyc
-*.swp
-*.swo
-build/
-.venv
-dist/
-README
-MANIFEST
-tornadorpc.egg-info
