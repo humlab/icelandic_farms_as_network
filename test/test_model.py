@@ -27,6 +27,16 @@ class  ModelTestCase(unittest.TestCase):
         self.assertEqual(farm.isleif_farms_id, farm_id)
         self.assertEqual(subunit.jam_subunit_isleif, farm)
 
+    def test_can_fetch_a_specific_person(self):
+        
+        entity_id = 235
+        person = self.registry.get(repository.PeopleHistoricalRepository).get_by_id(entity_id)
+        farm = person.isleif_farms 
+        
+        self.assertIsNotNone(person)
+        self.assertIsNotNone(farm)
+        self.assertEqual(person.entity_name, 'Beneficium Miklibær')
+        self.assertEqual(farm.Hreppur, 'Akrahreppur')
 
 if __name__ == '__main__':
     

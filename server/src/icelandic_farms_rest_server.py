@@ -12,7 +12,8 @@ sys.path = ["." ] + sys.path
 
 import config
 import model
-import json_serializer
+import repository
+import rest_json
 
 logger = config.get_logger(logging.INFO, __name__)
 
@@ -24,7 +25,7 @@ define("debug", default=False, type=bool)
 class BaseHandler(tornado.web.RequestHandler):
     
     def prepare(self):
-        self.registry = model.RepositoryRegistry()   
+        self.registry = repository.RepositoryRegistry()   
         
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
@@ -34,7 +35,13 @@ class BaseHandler(tornado.web.RequestHandler):
         hostname = "http://" + self.request.host.split(":")[0]
         self.set_header("Access-Control-Allow-Origin", hostname)
         self.set_header("Content-Type", "application/json; charset=UTF-8")
-        
+
+    def output(self, data):
+        self.write({
+            'status': True,
+            'data': data
+        })
+
 class QuitHandler(BaseHandler):
     def get(self):
         self.write({ 'message': 'shutting down'})
@@ -43,21 +50,26 @@ class QuitHandler(BaseHandler):
        
 class HelloHandler(BaseHandler):
     def get(self):
-        self.write({ 'message': 'hello' })
-        
-class FarmHandler(BaseHandler):
+        self.output("Hello world!")
 
-    def get_farms(self, farm_id):
-        if farm_id is None:
-            return self.registry.get(model.FarmRepository).get_all()
-        return self.registry.get(model.FarmRepository).get_by_id(farm_id)
+class QueryFarmHandler(BaseHandler):
 
     def get(self,farm_id=None):
-        self.write({
-            'status': True,
-            'data': json_serializer.FarmSerializer(self.get_farms(farm_id), many=farm_id==None).data
-        })
+        repo = self.registry.get(repository.QueryFarmRepository)
+        farms = repo.get_all() if farm_id == None else [ repo.get_by_id(farm_id) ]
+        self.output(rest_json.QueryFarmSchema().dump(farms, many=True).data)
     
+class FarmHandler(BaseHandler):
+
+    def get(self,farm_id=None):
+        farm = self.registry.get(repository.IsleifFarmRepository).get_by_id(farm_id)
+        self.output(rest_json.IsleifFarmSchema().dump(farm, many=False).data)
+
+class NetworkHandler(BaseHandler):
+
+    def get(self,farm_id=None):
+        self.output("Network inserted here")
+        
 class Application(tornado.web.Application):
     
     def __init__(self):
@@ -65,7 +77,9 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/hello", HelloHandler),
             (r"/farm/", FarmHandler),
-            (r"/farm/([0-9]+)/", FarmHandler),
+            (r"/farm/([0-9]+)", FarmHandler),
+            (r"/query/farm/([0-9]+)/", QueryFarmHandler),
+            (r"/query/farm/", QueryFarmHandler),
             (r"/network/", NetworkHandler),
             ]
 

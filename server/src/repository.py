@@ -51,23 +51,27 @@ class BaseRepository:
     def expunge(self, instance):
         self.db.expunge(instance)
         
-class FarmRepository(BaseRepository):
+class QueryFarmRepository(BaseRepository):
     '''
     Repository for access (and update) of farms entities.
     Inherits from BaseRepository
     Example:
-        repository = registry.get(FarmRepository)
+        repository = registry.get(QueryFarmRepository)
         farm = repositoty.get_by_id(farm_id) 
     '''
     
     def __init__(self, db):
-        super(FarmRepository, self).__init__(db, model.Farm, "isleif_farms_id")
+        super(QueryFarmRepository, self).__init__(db, model.Farm, "isleif_farms_id")
         
+class PeopleHistoricalRepository(BaseRepository):
+    
+    def __init__(self, db):
+        super(PeopleHistoricalRepository, self).__init__(db, model.LookupPeopleHistorical, "entity_historical_id")
+
 class IsleifFarmRepository(BaseRepository):
     
     def __init__(self, db):
         super(IsleifFarmRepository, self).__init__(db, model.IsleifFarm, "isleif_farms_id")
-
 
 class RepositoryRegistry():
     '''

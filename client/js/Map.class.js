@@ -12,7 +12,6 @@ class Map {
 		var format = 'image/png';
 		var bounds = [134491.28507963746, 256709.59349107544, 872885.1398414932, 747362.6529178418];
 
-
 		var mousePositionControl = new ol.control.MousePosition({
 			className: 'custom-mouse-position',
 			target: document.getElementById('location'),
