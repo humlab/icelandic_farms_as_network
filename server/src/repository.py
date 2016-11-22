@@ -61,7 +61,7 @@ class QueryFarmRepository(BaseRepository):
     '''
     
     def __init__(self, db):
-        super(QueryFarmRepository, self).__init__(db, model.Farm, "isleif_farms_id")
+        super(QueryFarmRepository, self).__init__(db, model.QueryFarm, "isleif_farms_id")
         
 class PeopleHistoricalRepository(BaseRepository):
     

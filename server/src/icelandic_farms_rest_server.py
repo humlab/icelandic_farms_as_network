@@ -42,6 +42,11 @@ class BaseHandler(tornado.web.RequestHandler):
             'data': data
         })
 
+    def get_by_id_or_all(self,repocls,jsoncls,id=None):
+        repo = self.registry.get(repocls)
+        items = repo.get_all() if id == None else [ repo.get_by_id(id) ]
+        return jsoncls().dump(items, many=True).data
+
 class QuitHandler(BaseHandler):
     def get(self):
         self.write({ 'message': 'shutting down'})
@@ -54,16 +59,15 @@ class HelloHandler(BaseHandler):
 
 class QueryFarmHandler(BaseHandler):
 
-    def get(self,farm_id=None):
-        repo = self.registry.get(repository.QueryFarmRepository)
-        farms = repo.get_all() if farm_id == None else [ repo.get_by_id(farm_id) ]
-        self.output(rest_json.QueryFarmSchema().dump(farms, many=True).data)
+    def get(self,id=None):
+        self.output(self.get_by_id_or_all(repository.QueryFarmRepository, rest_json.QueryFarmSchema, id))
     
 class FarmHandler(BaseHandler):
 
     def get(self,farm_id=None):
-        farm = self.registry.get(repository.IsleifFarmRepository).get_by_id(farm_id)
-        self.output(rest_json.IsleifFarmSchema().dump(farm, many=False).data)
+        repo = self.registry.get(repository.IsleifFarmRepository)
+        farms = repo.get_all() if farm_id == None else [ repo.get_by_id(farm_id) ]
+        self.output(rest_json.IsleifFarmSchema().dump(farms, many=True).data)
 
 class NetworkHandler(BaseHandler):
 
@@ -76,11 +80,12 @@ class Application(tornado.web.Application):
 
         handlers = [
             (r"/hello", HelloHandler),
-            (r"/farm/", FarmHandler),
+            (r"/farm", FarmHandler),
             (r"/farm/([0-9]+)", FarmHandler),
-            (r"/query/farm/([0-9]+)/", QueryFarmHandler),
+            (r"/query/farm/([0-9]+)", QueryFarmHandler),
             (r"/query/farm/", QueryFarmHandler),
-            (r"/network/", NetworkHandler),
+            (r"/network", NetworkHandler),
+            (r"/storiedline/(.*)", tornado.web.StaticFileHandler, { 'path': os.path.join(os.path.dirname(__file__), "/static") }),
             ]
 
         settings = dict(debug=True, autoreload=True)
