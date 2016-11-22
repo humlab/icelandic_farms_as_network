@@ -73,6 +73,14 @@ class IsleifFarmRepository(BaseRepository):
     def __init__(self, db):
         super(IsleifFarmRepository, self).__init__(db, model.IsleifFarm, "isleif_farms_id")
 
+class JamFullTextRepository(BaseRepository):
+    
+    def __init__(self, db):
+        super(JamFullTextRepository, self).__init__(db, model.JamFullText, "jardabok_full_text_id")
+
+    def get_all_by_farm_id(self,farm_id):
+        return self.db.query(model.JamFullText).filter(model.JamFullText.isleif_farms_id == farm_id).all()
+
 class RepositoryRegistry():
     '''
     Registry for singleton access of repositories.

@@ -15,7 +15,7 @@ class  ModelTestCase(unittest.TestCase):
         self.registry = repository.RepositoryRegistry()
 
     #@unittest.skip("skipping")
-    def test_can_fetch_a_specific_farm(self):
+    def xtest_can_fetch_a_specific_farm(self):
         
         farm_id = 3008
         farm_repository = self.registry.get(repository.IsleifFarmRepository)
@@ -27,7 +27,7 @@ class  ModelTestCase(unittest.TestCase):
         self.assertEqual(farm.isleif_farms_id, farm_id)
         self.assertEqual(subunit.jam_subunit_isleif, farm)
 
-    def test_can_fetch_a_specific_person(self):
+    def xtest_can_fetch_a_specific_person(self):
         
         entity_id = 235
         person = self.registry.get(repository.PeopleHistoricalRepository).get_by_id(entity_id)
@@ -37,6 +37,15 @@ class  ModelTestCase(unittest.TestCase):
         self.assertIsNotNone(farm)
         self.assertEqual(person.entity_name, 'Beneficium Miklibær')
         self.assertEqual(farm.Hreppur, 'Akrahreppur')
+
+    def test_can_fetch_full_text_for_farm_by_id(self):
+        
+        farm_id = 3008
+        full_text_repository = self.registry.get(repository.JamFullTextRepository)
+        items = full_text_repository.get_all_by_farm_id(farm_id)
+
+        self.assertIsNotNone(items)
+        self.assertTrue(len(items) > 0)
 
 if __name__ == '__main__':
     

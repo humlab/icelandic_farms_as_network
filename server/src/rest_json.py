@@ -26,3 +26,15 @@ class IsleifFarmSchema(Schema):
     Landamerki =  fields.String()
     Örnefni =  fields.String()
     isleif_farms_id = fields.Integer()
+
+class JamFullTextSchema(Schema):
+    jardabok_full_text_id = fields.Integer()
+    jardabok_full_text =  fields.String()
+    isleif_farms_id = fields.Integer()
+    logbyli_id = fields.Integer()
+    hjaleiga_status =  fields.String()
+    hjaleiga_number = fields.Integer()
+    jam_census_property_occupation = fields.Boolean()
+    jam_census_property_abandon_year = fields.Integer()
+    jam_census_property_ecclesiastical_id = fields.Integer()
+    jam_census_property_dyrleiki = fields.Integer()

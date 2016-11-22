@@ -58,22 +58,23 @@ class HelloHandler(BaseHandler):
         self.output("Hello world!")
 
 class QueryFarmHandler(BaseHandler):
-
     def get(self,id=None):
         self.output(self.get_by_id_or_all(repository.QueryFarmRepository, rest_json.QueryFarmSchema, id))
     
 class FarmHandler(BaseHandler):
-
-    def get(self,farm_id=None):
-        repo = self.registry.get(repository.IsleifFarmRepository)
-        farms = repo.get_all() if farm_id == None else [ repo.get_by_id(farm_id) ]
-        self.output(rest_json.IsleifFarmSchema().dump(farms, many=True).data)
+    def get(self,id=None):
+        self.output(self.get_by_id_or_all(repository.IsleifFarmRepository, rest_json.IsleifFarmSchema, id))
 
 class NetworkHandler(BaseHandler):
-
     def get(self,farm_id=None):
         self.output("Network inserted here")
-        
+
+class FullTextHandler(BaseHandler):
+    def get(self,farm_id):
+        repo = self.registry.get(repository.JamFullTextRepository)
+        items = repo.get_all_by_farm_id(farm_id)
+        self.output(rest_json.JamFullTextSchema().dump(items, many=True).data)
+
 class Application(tornado.web.Application):
     
     def __init__(self):
@@ -82,6 +83,7 @@ class Application(tornado.web.Application):
             (r"/hello", HelloHandler),
             (r"/farm", FarmHandler),
             (r"/farm/([0-9]+)", FarmHandler),
+            (r"/farm/([0-9]+)/fulltext", FullTextHandler),
             (r"/query/farm/([0-9]+)", QueryFarmHandler),
             (r"/query/farm/", QueryFarmHandler),
             (r"/network", NetworkHandler),
