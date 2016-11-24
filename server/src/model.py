@@ -1,28 +1,32 @@
 #  -*- coding: utf-8 -*-
-from sqlalchemy import Column, String, Integer, Float, Text, DateTime, Date, ForeignKey, Numeric, BigInteger, SmallInteger, Boolean, func
+from sqlalchemy import Column, String, Integer, Float, Text, DateTime, Date, ForeignKey, Numeric, BigInteger, SmallInteger, Boolean
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import UserDefinedType
-
+from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.orm import column_property
+from geoalchemy2 import Geometry
 import config
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+from sqlalchemy import func
 
 Base = declarative_base()
 
 logger = config.get_default_logger(__name__)
 
-class Geometry(UserDefinedType):
-    def get_col_spec(self):
-        return "GEOMETRY"
+# class Geometry(UserDefinedType):
+#     def get_col_spec(self):
+#         return "GEOMETRY"
 
-    def bind_expression(self, bindvalue):
-        return func.ST_GeomFromText(bindvalue, type_=self)
+#     def bind_expression(self, bindvalue):
+#         return func.ST_GeomFromText(bindvalue, type_=self)
 
-    def column_expression(self, col):
-        return func.ST_AsText(col, type_=self)
+#     def column_expression(self, col):
+#         return func.ST_AsText(col, type_=self)
         
 class QueryFarm(Base): 
     
-    __tablename__ = "view_storiedlines_farms"
+    __tablename__ = "view_storiedlines_main_farms"
     
     isleif_farms_id = Column(Integer, primary_key=True)     # isleif_farms."isleif_farms_id"
     row_number = Column(Integer)                            # isleif_farms."Númer jarðar" (row_number() over)
@@ -30,10 +34,10 @@ class QueryFarm(Base):
     parish_name = Column(String(20))                        # isleif_farms."Sókn"
     farm_name = Column(String(30))                          # isleif_farms."Heiti jarðar"  
     farm_number = Column(String(15))                        # isleif_farms."Númer jarðar"
-    jardabok_full_text = Column(Text())                     # jam_full_text."jardabok_full_text""
+    jardabok_text_vector = column_property(Column(TSVECTOR), deferred=True)
+    #farm_geometry = Column(Geometry('POINT'))
     farm_geometry_geojson = Column(Text())                  # jam_farms_subunits."geom"
-    farm_property_value = Column(String(15))                # jam_farms_logbyli."jam_census_property_dyrleiki"
-
+    farm_property_value = Column(Integer)                   # jam_farms_logbyli."jam_census_property_dyrleiki"
 
 class IsleifFarm(Base):
     __tablename__ = 'isleif_farms'
@@ -51,6 +55,14 @@ class IsleifFarm(Base):
     Örnefni = Column(Text)
     isleif_farms_id = Column(Integer, primary_key=True) #, unique=True, server_default=text("nextval('isleif_farms_id_seq'::regclass)"))
 
+class JamFullText(Base):
+    __tablename__ = 'jam_full_text'
+
+    jardabok_full_text_id = Column(Integer, primary_key=True) #, server_default=text("nextval('jardabok_full_text_id_seq'::regclass)"))
+    jardabok_full_text = Column(Text)
+    isleif_farms_id = Column(ForeignKey('isleif_farms.isleif_farms_id'), index=True)
+
+    isleif_farms = relationship(IsleifFarm, backref=backref('jardabok_texts', uselist=True), uselist=False)
 
 class JamFarmsSubunit(Base):
     __tablename__ = 'jam_farms_subunits'
@@ -61,7 +73,11 @@ class JamFarmsSubunit(Base):
     jam_subunit_ornefni = Column(String(254))
     jam_subunit_numer_jord = Column(String(8))
     jam_subunit_samtala = Column(String(12))
-    geom = Column(Geometry)
+
+    jam_farms_subunits_geom = Column("geom", Geometry('POINT'))
+
+    geometry_geojson = column_property(func.ST_AsGeoJSON(jam_farms_subunits_geom))
+
     jam_subunit_isleif_id = Column(ForeignKey('isleif_farms.isleif_farms_id'))
     jam_subunit_occupation_status = Column(Boolean)
     jam_subunit_establish_date = Column(SmallInteger)
@@ -83,15 +99,16 @@ class JamFarmsSubunit(Base):
     jam_subunit_landskuld_paylocation = Column(ForeignKey('jam_farms_subunits.gid'))
     jam_subunit_landskuld_notes = Column(String(255))
 
-    #jam_landskuld_paymethod = relationship('LookupEconomyPaymethod', primaryjoin='JamFarmsSubunit.jam_landskuld_paymethod_id == LookupEconomyPaymethod.lookup_economy_paymethod_id')
-    #jam_leigukugildi_paymethod = relationship('LookupEconomyPaymethod', primaryjoin='JamFarmsSubunit.jam_leigukugildi_paymethod_id == LookupEconomyPaymethod.lookup_economy_paymethod_id')
-    #lookup_tax_change_reason = relationship('LookupTaxChangeReason')
-    #jam_subunit_abandon_reason = relationship('LookupFarmAbandonmentReason')
-    #jam_subunit_isleif = relationship('IsleifFarm')
     jam_subunit_isleif = relationship(IsleifFarm, backref=backref('subunits', uselist=True), uselist=False)
-    parent = relationship('JamFarmsSubunit', remote_side=[gid])
-    #jam_subunit_reoccupation_potential = relationship('LookupFarmReoccupationPotential')
-    #jam_subunit_type1 = relationship('LookupSiteType')
+
+    # #jam_landskuld_paymethod = relationship('LookupEconomyPaymethod', primaryjoin='JamFarmsSubunit.jam_landskuld_paymethod_id == LookupEconomyPaymethod.lookup_economy_paymethod_id')
+    # #jam_leigukugildi_paymethod = relationship('LookupEconomyPaymethod', primaryjoin='JamFarmsSubunit.jam_leigukugildi_paymethod_id == LookupEconomyPaymethod.lookup_economy_paymethod_id')
+    # #lookup_tax_change_reason = relationship('LookupTaxChangeReason')
+    # #jam_subunit_abandon_reason = relationship('LookupFarmAbandonmentReason')
+    # #jam_subunit_isleif = relationship('IsleifFarm')
+    # parent = relationship('JamFarmsSubunit', remote_side=[gid])
+    # #jam_subunit_reoccupation_potential = relationship('LookupFarmReoccupationPotential')
+    # #jam_subunit_type1 = relationship('LookupSiteType')
 
 class LookupPeopleHistorical(Base):
     __tablename__ = 'lookup_people_historical'
@@ -443,16 +460,6 @@ class JamFodderProductivity(Base):
     ungneyti = Column(SmallInteger)
 
     jam_farms_subunits = relationship('JamFarmsSubunit')
-
-
-class JamFullText(Base):
-    __tablename__ = 'jam_full_text'
-
-    jardabok_full_text_id = Column(Integer, primary_key=True) #, server_default=text("nextval('jardabok_full_text_id_seq'::regclass)"))
-    jardabok_full_text = Column(Text)
-    isleif_farms_id = Column(ForeignKey('isleif_farms.isleif_farms_id'), index=True)
-
-    isleif_farms = relationship('IsleifFarm')
 
 class JamKvadir(Base):
     __tablename__ = 'jam_kvadir'

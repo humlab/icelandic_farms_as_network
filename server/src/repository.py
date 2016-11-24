@@ -1,3 +1,4 @@
+#  -*- coding: utf-8 -*-
 import datetime
 import sys
 
@@ -11,7 +12,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine.url import URL
 import model
 
-logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 class BaseRepository:
     '''
@@ -63,6 +64,9 @@ class QueryFarmRepository(BaseRepository):
     def __init__(self, db):
         super(QueryFarmRepository, self).__init__(db, model.QueryFarm, "isleif_farms_id")
         
+    def find_by_key(self,key):
+        return self.db.query(model.QueryFarm).filter(model.QueryFarm.jardabok_text_vector.match(key)).all()
+
 class PeopleHistoricalRepository(BaseRepository):
     
     def __init__(self, db):

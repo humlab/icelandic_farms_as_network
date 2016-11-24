@@ -6,6 +6,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import tornado.escape
+import json
 from tornado.options import define, options
 
 sys.path = ["." ] + sys.path
@@ -57,10 +58,25 @@ class HelloHandler(BaseHandler):
     def get(self):
         self.output("Hello world!")
 
+class QueryFarmService():
+
+    def __init__(self, registry):
+        self.registry = registry
+        self.repository = registry.get(repository.QueryFarmRepository)
+
+    def find_by_key(self, options):
+        return self.repository.find_by_key(data["key"] or None)
+        
 class QueryFarmHandler(BaseHandler):
-    def get(self,id=None):
+
+    def get(self, id):
         self.output(self.get_by_id_or_all(repository.QueryFarmRepository, rest_json.QueryFarmSchema, id))
-    
+   
+    def post(self):
+        options = json.loads(self.request.body)
+        items = QueryFarmService(self.registry).find_by_key(options)
+        self.output(QueryFarmSchema().dump(items, many=True).data)
+
 class FarmHandler(BaseHandler):
     def get(self,id=None):
         self.output(self.get_by_id_or_all(repository.IsleifFarmRepository, rest_json.IsleifFarmSchema, id))
@@ -85,8 +101,9 @@ class Application(tornado.web.Application):
             (r"/farm/([0-9]+)", FarmHandler),
             (r"/farm/([0-9]+)/fulltext", FullTextHandler),
             (r"/query/farm/([0-9]+)", QueryFarmHandler),
-            (r"/query/farm/", QueryFarmHandler),
+            (r"/query/farm", QueryFarmHandler),
             (r"/network", NetworkHandler),
+            #(r"/farm/([0-9]+)/network", FarmNetworkHandler),
             (r"/storiedline/(.*)", tornado.web.StaticFileHandler, { 'path': os.path.join(os.path.dirname(__file__), "/static") }),
             ]
 
