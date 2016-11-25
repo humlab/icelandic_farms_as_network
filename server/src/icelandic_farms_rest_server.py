@@ -65,7 +65,7 @@ class QueryFarmService():
         self.repository = registry.get(repository.QueryFarmRepository)
 
     def find_by_key(self, options):
-        return self.repository.find_by_key(data["key"] or None)
+        return self.repository.find_by_key(options["key"] or None)
         
 class QueryFarmHandler(BaseHandler):
 
@@ -73,9 +73,9 @@ class QueryFarmHandler(BaseHandler):
         self.output(self.get_by_id_or_all(repository.QueryFarmRepository, rest_json.QueryFarmSchema, id))
    
     def post(self):
-        options = json.loads(self.request.body)
+        options = json.loads(self.request.body.decode('utf-8'))
         items = QueryFarmService(self.registry).find_by_key(options)
-        self.output(QueryFarmSchema().dump(items, many=True).data)
+        self.output(rest_json.QueryFarmSchema().dump(items, many=True).data)
 
 class FarmHandler(BaseHandler):
     def get(self,id=None):
