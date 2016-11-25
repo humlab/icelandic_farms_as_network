@@ -94,7 +94,8 @@ class FullTextHandler(BaseHandler):
 class Application(tornado.web.Application):
     
     def __init__(self):
-
+        cur_path = os.path.dirname(os.path.abspath(__file__))
+        root_path = os.path.abspath(os.path.join(cur_path, "..\\.."))
         handlers = [
             (r"/hello", HelloHandler),
             (r"/farm", FarmHandler),
@@ -104,8 +105,11 @@ class Application(tornado.web.Application):
             (r"/query/farm/([0-9]+)", QueryFarmHandler),
             (r"/network", NetworkHandler),
             #(r"/farm/([0-9]+)/network", FarmNetworkHandler),
-            (r"/storiedline/(.*)", tornado.web.StaticFileHandler, { 'path': os.path.join(os.path.dirname(__file__), "/") }),
-            ]
+            (r"/storiedline/(.*)", tornado.web.StaticFileHandler, {
+                'path': root_path,
+                'default_filename': 'index.html'
+            }),
+        ]
 
         settings = dict(debug=True, autoreload=True)
         tornado.web.Application.__init__(self, handlers, **settings)
