@@ -69,7 +69,7 @@ class QueryFarmService():
         
 class QueryFarmHandler(BaseHandler):
 
-    def get(self, id):
+    def get(self, id=None):
         self.output(self.get_by_id_or_all(repository.QueryFarmRepository, rest_json.QueryFarmSchema, id))
    
     def post(self):
@@ -100,11 +100,11 @@ class Application(tornado.web.Application):
             (r"/farm", FarmHandler),
             (r"/farm/([0-9]+)", FarmHandler),
             (r"/farm/([0-9]+)/fulltext", FullTextHandler),
-            (r"/query/farm/([0-9]+)", QueryFarmHandler),
             (r"/query/farm", QueryFarmHandler),
+            (r"/query/farm/([0-9]+)", QueryFarmHandler),
             (r"/network", NetworkHandler),
             #(r"/farm/([0-9]+)/network", FarmNetworkHandler),
-            (r"/storiedline/(.*)", tornado.web.StaticFileHandler, { 'path': os.path.join(os.path.dirname(__file__), "/static") }),
+            (r"/storiedline/(.*)", tornado.web.StaticFileHandler, { 'path': os.path.join(os.path.dirname(__file__), "/") }),
             ]
 
         settings = dict(debug=True, autoreload=True)
