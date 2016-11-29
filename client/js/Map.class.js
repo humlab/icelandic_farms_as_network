@@ -1,5 +1,7 @@
-
-
+/**
+* :: Map ::
+* This class is basically just a wrapper around the OL3 map object and is supposed to provide some abstraction, convenience and encapsulation regarding map-related things.
+**/
 class Map {
 
 	constructor(containerDomId) {
@@ -11,7 +13,7 @@ class Map {
 	createMapInContainer(containerDomId) {
 
 		var format = 'image/png';
-		var bounds = [134491.28507963746, 256709.59349107544, 872885.1398414932, 747362.6529178418];
+		var bounds = [-3218214.0777506866, 8840353.902547171, -1019292.003273349, 10381889.89850889];
 
 		var mousePositionControl = new ol.control.MousePosition({
 			className: 'custom-mouse-position',
@@ -21,7 +23,7 @@ class Map {
 		});
 
 		var projection = new ol.proj.Projection({
-			code: 'EPSG:3057',
+			code: 'EPSG:3857', //EPSG:3057 would be better but it's not supported
 			units: 'm',
 			axisOrientation: 'neu',
 			global: false,
@@ -47,6 +49,11 @@ class Map {
 		});
 
 		var layers = [
+			/*
+			new ol.layer.Tile({
+	            source: new ol.source.OSM()
+			}),
+			*/
 			new ol.layer.Tile({
 				source: icelandSource
 			})
