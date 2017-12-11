@@ -1,7 +1,7 @@
 #!/bin/bash
-PROGRAM_PATH=/var/www/storiedlines/icelandic_farms_as_network/server/src
+PROGRAM_PATH=/var/www/jardabok.com/server/icelandic_farms_as_network/server/src
 PROGRAM_NAME=icelandic_farms_rest_server.py
-LOG_FILE=/tmp/icelandic_farms_rest_server.log
+LOG_FILE=/var/log/icelandic_farms_rest_server.log
 
 while [  true ]; do
     cd $PROGRAM_PATH

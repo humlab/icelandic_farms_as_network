@@ -5,8 +5,10 @@ import json
 
 class JsonString(fields.Field):
     def _serialize(self, value, attr, obj):
-        return json.loads(value)
-
+        if value != None:
+            return json.loads(value)
+        else:
+            return  {}
 # class NestedDict(fields.Nested):
 #     def __init__(self, nested, key, *args, **kwargs):
 #         super(NestedDict, self).__init__(nested, many=True, *args, **kwargs)
@@ -32,6 +34,34 @@ class QueryFarmSchema(Schema):
     farm_geometry_geojson = fields.String()
     farm_geometry = JsonString(attribute="farm_geometry_geojson")
     farm_property_value = fields.Integer()
+    geom = fields.String()
+    historic_value = fields.String()
+    adjusted_value = fields.String()
+
+class QueryResourceNetworkSchema(Schema):
+    county = fields.String()
+    commune = fields.String()
+    parish = fields.String()
+    farm_name = fields.String()
+    farm_number = fields.String()
+    lookup_resource_en = fields.String()
+    lookup_resource_use_en = fields.String()
+    target_isleif_name = fields.String()
+    target_isleif_id = fields.String()
+    lookup_resource_is = fields.String()
+    jam_external_resource_notes = fields.String()
+    temporal_phase_en = fields.String()
+    geom = JsonString(attribute="st_makeline")
+
+class QueryPropertyNetworkSchema(Schema):
+    entity_name = fields.String()
+    heimili = fields.String()
+    heimili_code = fields.String()
+    entity_type_alias = fields.String()
+    property_name = fields.String()
+    property_code = fields.String()
+    link_jam_ownership_proportion = fields.String()
+    geom = JsonString(attribute="st_makeline")
 
 class JamFarmsSubunitSchema(Schema):
     gid = fields.Integer()
@@ -93,3 +123,5 @@ class JamFullTextSchema(Schema):
     jam_census_property_ecclesiastical_id = fields.Integer()
     jam_census_property_dyrleiki = fields.Integer()
 
+class FarmTextSearchSchema(Schema):
+    isleif_farms_id = fields.Integer()

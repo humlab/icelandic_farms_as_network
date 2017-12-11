@@ -7,6 +7,7 @@ import tornado.options
 import tornado.web
 import tornado.escape
 import json
+import time
 from tornado.options import define, options
 
 sys.path = ["." ] + sys.path
@@ -20,7 +21,7 @@ logger = config.get_logger(logging.INFO, __name__)
 
 application = None
 
-define("port", default=8081, help="run on the given port", type=int)
+define("port", default=9081, help="run on the given port", type=int)
 define("debug", default=False, type=bool)
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -45,7 +46,17 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def get_by_id_or_all(self,repocls,jsoncls,id=None):
         repo = self.registry.get(repocls)
-        items = repo.get_all() if id == None else [ repo.get_by_id(id) ]
+        if jsoncls == rest_json.QueryResourceNetworkSchema:
+            items = repo.get_resource_network() if id == None else [ repo.get_by_id(id) ]
+        elif jsoncls == rest_json.QueryPropertyNetworkSchema:
+            items = repo.get_property_network() if id == None else [ repo.get_by_id(id) ]
+        else:
+            items = repo.get_all() if id == None else [ repo.get_by_id(id) ]
+        return jsoncls().dump(items, many=True).data
+
+    def get_by_text_search(self, repocls, jsoncls, searchText=None):
+        repo = self.registry.get(repocls)
+        items = repo.get_by_text_search(searchText)
         return jsoncls().dump(items, many=True).data
 
 class QuitHandler(BaseHandler):
@@ -77,6 +88,16 @@ class QueryFarmHandler(BaseHandler):
         items = QueryFarmService(self.registry).find_by_key(options)
         self.output(rest_json.QueryFarmSchema().dump(items, many=True).data)
 
+class ResourceNetworkHandler(BaseHandler):
+
+    def get(self, id=None):
+        self.output(self.get_by_id_or_all(repository.QueryFarmRepository, rest_json.QueryResourceNetworkSchema, id))
+
+class PropertyNetworkHandler(BaseHandler):
+
+    def get(self, id=None):
+        self.output(self.get_by_id_or_all(repository.QueryFarmRepository, rest_json.QueryPropertyNetworkSchema, id))
+
 class FarmHandler(BaseHandler):
     def get(self,id=None):
         self.output(self.get_by_id_or_all(repository.IsleifFarmRepository, rest_json.IsleifFarmSchema, id))
@@ -91,6 +112,11 @@ class FullTextHandler(BaseHandler):
         items = repo.get_all_by_farm_id(farm_id)
         self.output(rest_json.JamFullTextSchema().dump(items, many=True).data)
 
+class FarmTextSearchHandler(BaseHandler):
+    def get(self, searchText=None):
+        self.output(self.get_by_text_search(repository.QueryFarmRepository, rest_json.IsleifFarmSchema, searchText))
+
+
 class Application(tornado.web.Application):
     
     def __init__(self):
@@ -103,7 +129,9 @@ class Application(tornado.web.Application):
             (r"/farm/([0-9]+)/fulltext", FullTextHandler),
             (r"/query/farm", QueryFarmHandler),
             (r"/query/farm/([0-9]+)", QueryFarmHandler),
-            (r"/network", NetworkHandler),
+            (r"/network/resource", ResourceNetworkHandler),
+            (r"/network/property", PropertyNetworkHandler),
+            (r"/farm/search/(.*)", FarmTextSearchHandler),
             #(r"/farm/([0-9]+)/network", FarmNetworkHandler),
             (r"/storiedline/(.*)", tornado.web.StaticFileHandler, {
                 'path': root_path,

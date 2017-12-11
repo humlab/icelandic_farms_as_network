@@ -6,7 +6,7 @@ DATABASE = {
     'drivername': 'postgresql',
     'host': 'archviz.humlab.umu.se',
     'username': 'humlab',
-    'password': 'team!gisli',
+    'password': 'DeerCookie!!D',
     'port': '5432',
     'database': 'isleif_development'
 }

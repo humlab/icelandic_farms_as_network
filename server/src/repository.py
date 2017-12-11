@@ -1,15 +1,15 @@
 #  -*- coding: utf-8 -*-
 import datetime
 import sys
+from sqlalchemy import text
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.engine.url import URL
 
 sys.path = [ "." ] + sys.path
 
 import config
 import logging
-from sqlalchemy import text
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.engine.url import URL
 import model
 
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
@@ -35,23 +35,33 @@ class BaseRepository:
     
     def get_all(self):
         return self.get_restricted_query().all() 
-    
+
     def restrict_query(self, query):
         return query
-    
+
     def add(self, instance):
         self.db.add(instance)
-        
+
     def commit(self):
         self.db.commit()
-        
+
     def save(self, instance):
         self.db.add(instance)
         self.db.commit()
 
     def expunge(self, instance):
         self.db.expunge(instance)
-        
+
+    def execute_raw_sql(self, query):
+        sql = text(query)
+        result = self.db.execute(sql)
+        return result
+
+    def get_table(self, table):
+        sql = 'SELECT * FROM {}'.format(table)
+        result = self.execute_raw_sql(sql)
+        return result
+
 class QueryFarmRepository(BaseRepository):
     '''
     Repository for access (and update) of farms entities.
@@ -66,6 +76,16 @@ class QueryFarmRepository(BaseRepository):
         
     def find_by_key(self,key):
         return self.db.query(model.QueryFarm).filter(model.QueryFarm.jardabok_text_vector.match(key)).all()
+
+    def get_resource_network(self):
+        return self.db.query(model.QueryResourceNetwork).all()
+
+    def get_property_network(self):
+        return self.db.query(model.QueryPropertyNetwork).all()
+
+    def get_by_text_search(self, searchText):
+        return self.db.query(model.QueryFarm).filter(model.QueryFarm.jardabok_full_text.like('%'+searchText+'%')).all()
+
 
 class PeopleHistoricalRepository(BaseRepository):
     

@@ -1,15 +1,15 @@
 #!/bin/bash
-# /etc/init.d/storiedline_rest_server
+# /etc/init.d/jardabok_rest_server
 
-NAME="storiedline_rest_server"
-PROGRAM_PATH=/var/www/storiedlines/icelandic_farms_as_network/scripts
-PROGRAM_NAME=storiedline_rest_server.sh
+NAME="jardabok_rest_server"
+PROGRAM_PATH=/var/www/jardabok.com/server/icelandic_farms_as_network/scripts
+PROGRAM_NAME=jardabok_rest_server.sh
 
 case "$1" in
   start)
     printf "%s\n" "Starting $NAME"
-    pkill -9 -f storiedline_rest_server.bash
-    pkill -9 -f storiedline_rest_server.py
+    pkill -9 -f jardabok_rest_server.sh
+    pkill -9 -f jardabok_rest_server.py
     cd $PROGRAM_PATH
     chmod +x $PROGRAM_PATH/$PROGRAM_NAME
     PID=`nohup $PROGRAM_PATH/$PROGRAM_NAME >/dev/null 2>&1 & echo $!`
@@ -17,8 +17,8 @@ case "$1" in
     ;;
   stop)
     printf "%s\n" "Stopping $NAME"
-    pkill -9 -f storiedline_rest_server.bash
-    pkill -9 -f storiedline_rest_server.py
+    pkill -9 -f jardabok_rest_server.sh
+    pkill -9 -f jardabok_rest_server.py
     printf "%s\n" "$NAME is now dead"
     ;;
   restart)
