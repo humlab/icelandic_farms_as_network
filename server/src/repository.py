@@ -12,7 +12,7 @@ import config
 import logging
 import model
 
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
 
 class BaseRepository:
     '''

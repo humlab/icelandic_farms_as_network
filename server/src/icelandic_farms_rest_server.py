@@ -17,7 +17,7 @@ import model
 import repository
 import rest_json
 
-logger = config.get_logger(logging.INFO, __name__)
+logger = config.get_logger(logging.WARNING, __name__)
 
 application = None
 
